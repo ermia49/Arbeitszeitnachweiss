@@ -1,0 +1,61 @@
+/* Custom CSS for Arbeitszeitnachweise Generator */
+
+/* Main Styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+}
+
+/* Card styles */
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    font-weight: 500;
+}
+
+/* Table styles */
+.table-responsive {
+    overflow-x: auto;
+}
+
+th {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 1;
+}
+
+/* Form styles */
+.form-label {
+    font-weight: 500;
+}
+
+/* Footer */
+.footer {
+    margin-top: auto;
+}
+
+/* Status colors for work time table */
+.weekend {
+    background-color: #f8f9fa;
+}
+
+.holiday {
+    background-color: #f8d7da;
+}
+
+.sick {
+    background-color: #d1ecf1;
+}
+
+.vacation {
+    background-color: #d4edda;
+}

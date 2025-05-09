@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Work Time - Arbeitszeitnachweise Generator{% endblock %}
+
+{% block head %}
+<style>
+    .weekend {
+        background-color: #f8f9fa;
+    }
+    
+    .holiday {
+        background-color: #f8d7da;
+    }
+    
+    .sick {
+        background-color: #d1ecf1;
+    }
+    
+    .vacation {
+        background-color: #d4edda;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h3 class="mb-0"><i class="fas fa-edit"></i> Edit Work Time for {{ driver_name }}</h3>
+        <a href="{{ url_for('review') }}" class="btn btn-outline-light">
+            <i class="fas fa-arrow-left"></i> Back to Review
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Work Hours</th>
+                            <th>Break</th>
+                            <th>Night Hours</th>
+                            <th>Sunday Hours</th>
+                            <th>Holiday Hours</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for day in driver_data.days %}
+                        <tr class="{% if day.is_weekend %}weekend{% endif %} {% if day.is_holiday %}holiday{% endif %} {% if day.status == 'sick' %}sick{% endif %} {% if day.status == 'vacation' %}vacation{% endif %}">
+                            <td>{{ day.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ day.day_name }}</td>
+                            <td>
+                                <input type="number" step="0.01" min="0" class="form-control form-control-sm work-hours"
+                                       name="work_hours_{{ day.date }}" value="{{ day.work_hours }}" data-date="{{ day.date }}">
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" min="0" class="form-control form-control-sm break-time"
+                                       name="break_time_{{ day.date }}" value="{{ day.break_time }}" data-date="{{ day.date }}">
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" min="0" class="form-control form-control-sm night-hours"
+                                       name="night_hours_{{ day.date }}" value="{{ day.night_hours }}" data-date="{{ day.date }}">
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" min="0" class="form-control form-control-sm sunday-hours"
+                                       name="sunday_hours_{{ day.date }}" value="{{ day.sunday_hours }}" data-date="{{ day.date }}">
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" min="0" class="form-control form-control-sm holiday-hours"
+                                       name="holiday_hours_{{ day.date }}" value="{{ day.holiday_hours }}" data-date="{{ day.date }}">
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm status"
+                                        name="status_{{ day.date }}" data-date="{{ day.date }}">
+                                    <option value="" {% if not day.status %}selected{% endif %}>-</option>
+                                    <option value="sick" {% if day.status == 'sick' %}selected{% endif %}>Sick</option>
+                                    <option value="vacation" {% if day.status == 'vacation' %}selected{% endif %}>Vacation</option>
+                                    <option value="unpaid" {% if day.status == 'unpaid' %}selected{% endif %}>Unpaid</option>
+                                </select>
+                                <input type="hidden" name="{{ day.date }}" class="day-data" value="{{ day.work_hours }},{{ day.break_time }},{{ day.night_hours }},{{ day.sunday_hours }},{{ day.holiday_hours }},{{ day.status if day.status else '' }}">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-light fw-bold">
+                            <td colspan="2">Total</td>
+                            <td id="total-work-hours">{{ driver_data.total_work_hours }}</td>
+                            <td id="total-break-time">{{ driver_data.total_break_time }}</td>
+                            <td id="total-night-hours">{{ driver_data.total_night_hours }}</td>
+                            <td id="total-sunday-hours">{{ driver_data.total_sunday_hours }}</td>
+                            <td id="total-holiday-hours">{{ driver_data.total_holiday_hours }}</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{{ url_for('review') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update hidden input field when any value changes
+        function updateDayData(date) {
+            const workHours = document.querySelector(`input[name="work_hours_${date}"]`).value || 0;
+            const breakTime = document.querySelector(`input[name="break_time_${date}"]`).value || 0;
+            const nightHours = document.querySelector(`input[name="night_hours_${date}"]`).value || 0;
+            const sundayHours = document.querySelector(`input[name="sunday_hours_${date}"]`).value || 0;
+            const holidayHours = document.querySelector(`input[name="holiday_hours_${date}"]`).value || 0;
+            const status = document.querySelector(`select[name="status_${date}"]`).value || '';
+            
+            const dayData = `${workHours},${breakTime},${nightHours},${sundayHours},${holidayHours},${status}`;
+            document.querySelector(`input[name="${date}"]`).value = dayData;
+            
+            // Update totals
+            updateTotals();
+        }
+        
+        // Update total values at the bottom of the table
+        function updateTotals() {
+            let totalWorkHours = 0;
+            let totalBreakTime = 0;
+            let totalNightHours = 0;
+            let totalSundayHours = 0;
+            let totalHolidayHours = 0;
+            
+            document.querySelectorAll('.work-hours').forEach(input => {
+                totalWorkHours += parseFloat(input.value || 0);
+            });
+            
+            document.querySelectorAll('.break-time').forEach(input => {
+                totalBreakTime += parseFloat(input.value || 0);
+            });
+            
+            document.querySelectorAll('.night-hours').forEach(input => {
+                totalNightHours += parseFloat(input.value || 0);
+            });
+            
+            document.querySelectorAll('.sunday-hours').forEach(input => {
+                totalSundayHours += parseFloat(input.value || 0);
+            });
+            
+            document.querySelectorAll('.holiday-hours').forEach(input => {
+                totalHolidayHours += parseFloat(input.value || 0);
+            });
+            
+            document.getElementById('total-work-hours').textContent = totalWorkHours.toFixed(2);
+            document.getElementById('total-break-time').textContent = totalBreakTime.toFixed(2);
+            document.getElementById('total-night-hours').textContent = totalNightHours.toFixed(2);
+            document.getElementById('total-sunday-hours').textContent = totalSundayHours.toFixed(2);
+            document.getElementById('total-holiday-hours').textContent = totalHolidayHours.toFixed(2);
+        }
+        
+        // Add event listeners to all inputs
+        document.querySelectorAll('.work-hours, .break-time, .night-hours, .sunday-hours, .holiday-hours, .status').forEach(input => {
+            input.addEventListener('change', function() {
+                updateDayData(this.dataset.date);
+            });
+        });
+        
+        // Initialize status change handlers
+        document.querySelectorAll('.status').forEach(select => {
+            select.addEventListener('change', function() {
+                const date = this.dataset.date;
+                const row = this.closest('tr');
+                const workHoursInput = row.querySelector('.work-hours');
+                const breakTimeInput = row.querySelector('.break-time');
+                const nightHoursInput = row.querySelector('.night-hours');
+                const sundayHoursInput = row.querySelector('.sunday-hours');
+                const holidayHoursInput = row.querySelector('.holiday-hours');
+                
+                // Clear all special classes
+                row.classList.remove('sick', 'vacation');
+                
+                // Add class based on status
+                if (this.value === 'sick') {
+                    row.classList.add('sick');
+                } else if (this.value === 'vacation') {
+                    row.classList.add('vacation');
+                }
+                
+                // Auto clear hours if status is set
+                if (this.value) {
+                    workHoursInput.value = 0;
+                    breakTimeInput.value = 0;
+                    nightHoursInput.value = 0;
+                    sundayHoursInput.value = 0;
+                    holidayHoursInput.value = 0;
+                }
+                
+                updateDayData(date);
+            });
+        });
+    });
+</script>
+{% endblock %}

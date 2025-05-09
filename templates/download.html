@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Download Reports - Arbeitszeitnachweise Generator{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white">
+        <h3 class="mb-0"><i class="fas fa-download"></i> Download Reports</h3>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> PDF reports have been generated successfully.
+        </div>
+        
+        <div class="mb-4">
+            <a href="{{ url_for('download_zip') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-file-archive"></i> Download All PDFs as ZIP
+            </a>
+        </div>
+        
+        <h4 class="mb-3">Individual PDFs:</h4>
+        
+        <div class="list-group">
+            {% for pdf_path in pdf_files %}
+                {% set filename = pdf_path.split('/')[-1] %}
+                <a href="{{ url_for('download_pdf', filename=filename) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-file-pdf text-danger me-2"></i>
+                        {{ filename }}
+                    </div>
+                    <span class="badge bg-primary rounded-pill">
+                        <i class="fas fa-download"></i>
+                    </span>
+                </a>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-4">
+            <a href="{{ url_for('process') }}" class="btn btn-secondary">
+                <i class="fas fa-upload"></i> Process More Files
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

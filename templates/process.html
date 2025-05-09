@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Process Files - Arbeitszeitnachweise Generator{% endblock %}
+
+{% block head %}
+<!-- Flatpickr for date picker -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h3 class="mb-0"><i class="fas fa-file-upload"></i> Process Files</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.fahrtenbuch.label(class="form-label") }}
+                    {{ form.fahrtenbuch(class="form-control") }}
+                    {% for error in form.fahrtenbuch.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                    <small class="text-muted">Upload a CSV or Excel file with columns for name, date, start, and end.</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.fahreruebersicht.label(class="form-label") }}
+                    {{ form.fahreruebersicht(class="form-control") }}
+                    {% for error in form.fahreruebersicht.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                    <small class="text-muted">Upload a CSV or Excel file with a column for driver names.</small>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.month_year.label(class="form-label") }}
+                    {{ form.month_year(class="form-control date-picker", placeholder="Select month") }}
+                    {% for error in form.month_year.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-6 mb-3 d-flex align-items-end">
+                    <div class="form-check">
+                        {{ form.include_inactive(class="form-check-input") }}
+                        {{ form.include_inactive.label(class="form-check-label") }}
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                {{ form.special_days.label(class="form-label") }}
+                {{ form.special_days(class="form-control", rows=5) }}
+                <small class="text-muted">Enter special days in format: YYYY-MM-DD,type (one per line).<br>For example: 2023-05-01,sick</small>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-cogs"></i> Process Files
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr(".date-picker", {
+            dateFormat: "Y-m-d",
+            defaultDate: "today",
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true,
+                    dateFormat: "Y-m-d",
+                    altFormat: "F Y"
+                })
+            ]
+        });
+    });
+</script>
+{% endblock %}

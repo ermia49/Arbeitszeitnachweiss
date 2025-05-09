@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Arbeitszeitnachweise Generator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="fas fa-clock"></i> Arbeitszeitnachweise Generator</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <p class="lead">Generate work time reports from driving logs.</p>
+                </div>
+                
+                {% if current_user.is_authenticated %}
+                <div class="row mt-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-file-upload fa-3x mb-3 text-primary"></i>
+                                <h5>Upload Files</h5>
+                                <p>Upload Fahrtenbuch and Fahrerübersicht files to process.</p>
+                                <a href="{{ url_for('process') }}" class="btn btn-primary">
+                                    <i class="fas fa-upload"></i> Upload Files
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                                <h5>Manage Drivers</h5>
+                                <p>Add, edit, or deactivate drivers in the system.</p>
+                                <a href="{{ url_for('drivers') }}" class="btn btn-primary">
+                                    <i class="fas fa-users"></i> Manage Drivers
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% if current_user.is_admin %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-cog fa-3x mb-3 text-primary"></i>
+                                <h5>Manage Users</h5>
+                                <p>Add or edit system users and permissions.</p>
+                                <a href="{{ url_for('users') }}" class="btn btn-primary">
+                                    <i class="fas fa-user-cog"></i> Manage Users
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="text-center mt-4">
+                    <p>Please login to use the system.</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-lg btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

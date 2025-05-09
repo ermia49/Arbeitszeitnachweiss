@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Review Data - Arbeitszeitnachweise Generator{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h3 class="mb-0"><i class="fas fa-clipboard-check"></i> Review Work Time Data</h3>
+        <div>
+            <a href="{{ url_for('process') }}" class="btn btn-outline-light me-2">
+                <i class="fas fa-upload"></i> Upload Different Files
+            </a>
+            <a href="{{ url_for('generate') }}" class="btn btn-light">
+                <i class="fas fa-file-pdf"></i> Generate PDFs
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <h4 class="mb-3">Month: {{ month_year }}</h4>
+        
+        {% if processed_data %}
+        <div class="row">
+            {% for driver_name, driver_data in processed_data.items() %}
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ driver_name }}</h5>
+                        <a href="{{ url_for('edit_work_time', driver_name=driver_name) }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Total Work Hours:</th>
+                                    <td>{{ driver_data.total_work_hours }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Break Time:</th>
+                                    <td>{{ driver_data.total_break_time }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Night Hours:</th>
+                                    <td>{{ driver_data.total_night_hours }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Sunday Hours:</th>
+                                    <td>{{ driver_data.total_sunday_hours }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Holiday Hours:</th>
+                                    <td>{{ driver_data.total_holiday_hours }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Meal Allowance:</th>
+                                    <td>{{ driver_data.meal_allowance }} €</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No processed data available. Please upload files first.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

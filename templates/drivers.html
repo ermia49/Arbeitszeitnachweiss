@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Drivers - Arbeitszeitnachweise Generator{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h3 class="mb-0"><i class="fas fa-users"></i> Drivers</h3>
+        <a href="{{ url_for('add_driver') }}" class="btn btn-light">
+            <i class="fas fa-plus"></i> Add Driver
+        </a>
+    </div>
+    <div class="card-body">
+        {% if drivers %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Employee ID</th>
+                        <th>Role</th>
+                        <th>Contract</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for driver in drivers %}
+                    <tr>
+                        <td>{{ driver.name }}</td>
+                        <td>{{ driver.employee_id }}</td>
+                        <td>{{ driver.role }}</td>
+                        <td>{{ driver.contract }}</td>
+                        <td>
+                            {% if driver.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('edit_driver', id=driver.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('toggle_driver', id=driver.id) }}" class="btn btn-sm btn-{% if driver.is_active %}warning{% else %}success{% endif %}">
+                                    <i class="fas fa-{% if driver.is_active %}ban{% else %}check{% endif %}"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No drivers found. Add your first driver using the button above.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
